@@ -12,6 +12,17 @@ or the base dir attribute.
 
 ## Usage
 
-```shell
-hash-assets -dir dist/ [-d] [-asset-ext] [-markup-ext]
+```
+hash-assets -dir <directory> [-d] [-hash-len] [-asset-exts] [-markup-exts]
+```
+
+```
+Usage:
+	-asset-ext string
+		Asset file extensions (default ".css,.js")
+	-d	Dry run
+	-dir string
+		Working directory path, required
+	-hash-len string
+		Hash string length (default "10")
 ```
