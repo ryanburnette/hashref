@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -41,9 +42,9 @@ func main() {
 		fmt.Printf("Error: %v\n", err)
 		os.Exit(1)
 	}
-	// fmt.Printf(strings.Join(assetFiles, "\n"))
+	fmt.Printf(strings.Join(assetFiles, "\n"))
 	// fmt.Printf("\n")
-	// os.Exit(1)
+	os.Exit(1)
 
 	var processedAssetFiles []string
 	for _, file := range assetFiles {
@@ -122,27 +123,22 @@ func processAssetFile(directory string, relPath string, dryRun bool, hashLength 
 	return newFilePath, nil
 }
 
-// findFilesByExt recursively finds all files with the specified extensions in the given directory.
-func findFilesByExt(directory string, extensions []string) ([]string, error) {
+// findFilesByExt recursively finds all files with the specified extensions in the given root
+func findFilesByExt(root string, extensions []string) ([]string, error) {
 	var files []string
 
-	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
+	fsys := os.DirFS(root)
+	err := fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if !info.IsDir() && hasSuffixAny(info.Name(), extensions) {
-			// Get the relative path by removing the directory prefix
-			relPath, err := filepath.Rel(directory, path)
-			if err != nil {
-				return err
-			}
-			files = append(files, relPath)
+		if !d.IsDir() && hasSuffixAny(d.Name(), extensions) {
+			files = append(files, path)
 		}
 
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
