@@ -9,10 +9,11 @@ import (
 )
 
 type Opts struct {
-	directory       string
-	dryRun          bool
-	assetExtensions []string
-	hashLen         int
+	directory        string
+	dryRun           bool
+	assetExtensions  []string
+	markupExtensions []string
+	hashLen          int
 }
 
 func main() {
@@ -22,14 +23,15 @@ func main() {
 	dryRun := flag.Bool("d", false, "Dry run")
 	assetExtArg := flag.String("asset-ext", ".css,.js", "Asset file extensions")
 	assetExtensions := strings.Split(*assetExtArg, ",")
-	// markupExtensions := flag.String("markup-ext", ".html", "Markup file extensions")
+	markupExtArg := flag.String("markup-ext", ".html", "Markup file extensions")
+	markupExtensions := strings.Split(*markupExtArg, ",")
 	hashLenArg := flag.String("hash-len", "8", "Hash string length")
 	flag.Parse()
 
 	// Check if the directory flag is empty
 	if directory == "" {
 		fmt.Printf("Error: -dir is required\n")
-		flag.PrintDefaults()
+		showUsage()
 		os.Exit(1)
 	}
 
@@ -40,29 +42,58 @@ func main() {
 		os.Exit(1)
 	}
 
+	// init opts
 	opts := Opts{
-		directory:       directory,
-		dryRun:          *dryRun,
-		assetExtensions: assetExtensions,
-		hashLen:         hashLen,
+		directory:        directory,
+		dryRun:           *dryRun,
+		assetExtensions:  assetExtensions,
+		markupExtensions: markupExtensions,
+		hashLen:          hashLen,
 	}
-
 	// fmt.Printf("%#v\n", opts)
 
 	fsys := os.DirFS(opts.directory)
-	ap := NewAssetProc(opts, fsys)
+
+	ap, err := NewAssetProc(opts, fsys)
+	if err != nil {
+		fmt.Printf("Error: %#v", err)
+		os.Exit(1)
+	}
 
 	err = ap.findAssets()
 	if err != nil {
-
+		fmt.Printf("Error: %#v", err)
+		os.Exit(1)
 	}
 
 	err = ap.renameAssets()
 	if err != nil {
-		fmt.Printf("%#v\n", err)
-		fmt.Printf("Error: failed to rename assets\n")
+		fmt.Printf("Error: %#v", err)
 		os.Exit(1)
 	}
 
-	// fmt.Printf("%#v\n", ap)
+	mp, err := NewMarkupProc(opts, fsys)
+	if err != nil {
+		fmt.Printf("Error: %#v", err)
+		os.Exit(1)
+	}
+
+	err = mp.findMarkups()
+	if err != nil {
+		fmt.Printf("Error: %#v", err)
+		os.Exit(1)
+	}
+
+	err = mp.markups[0].updateRefs(opts)
+	if err != nil {
+		fmt.Printf("Error: %#v", err)
+		os.Exit(1)
+	}
+
+	// fmt.Printf("%#v\n", mp)
+}
+
+func showUsage() {
+	fmt.Printf("Usage:\n")
+	flag.PrintDefaults()
 }

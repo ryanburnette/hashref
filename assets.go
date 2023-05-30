@@ -32,12 +32,12 @@ type AssetProc struct {
 	assets []Asset
 }
 
-func NewAssetProc(opts Opts, fsys fs.FS) *AssetProc {
+func NewAssetProc(opts Opts, fsys fs.FS) (*AssetProc, error) {
 	return &AssetProc{
 		opts:   opts,
 		fsys:   fsys,
 		assets: []Asset{},
-	}
+	}, nil
 }
 
 func (ap *AssetProc) findAssets() error {
