@@ -1,42 +1,50 @@
-package htmlassetref
+package htmlassetref_test
 
 import (
 	"fmt"
 	"io/ioutil"
 	"strings"
 	"testing"
+
+	"github.com/ryanburnette/go-hash-assets/htmlassetref"
 )
 
-func TestUpdateHTMLAssetRefs(t *testing.T) {
-	// Read the content from the "_content.html" file
-	contentBytes, err := ioutil.ReadFile("_content.html")
+func TestUpdateAssetRefs(t *testing.T) {
+	// Read the original HTML from _content.html
+	originalHTML, err := ioutil.ReadFile("_content.html")
 	if err != nil {
-		t.Fatalf("failed to read _content.html file: %v", err)
+		t.Fatalf("failed to read _content.html: %v", err)
 	}
-	content := string(contentBytes)
 
-	// Define the expected modified content from the "_modified.html" file
-	expectedModifiedBytes, err := ioutil.ReadFile("_modified.html")
+	// Define the expected modified HTML from _modified.html
+	expectedHTML, err := ioutil.ReadFile("_modified.html")
 	if err != nil {
-		t.Fatalf("failed to read _modified.html file: %v", err)
-	}
-	expectedModified := string(expectedModifiedBytes)
-
-	// Callback function to add "_x" before the extension of each file name
-	callback := func(reference, filePath string) string {
-		updatedFilePath := strings.TrimSuffix(filePath, ".") + "_x."
-		return strings.Replace(reference, filePath, updatedFilePath, 1)
+		t.Fatalf("failed to read _modified.html: %v", err)
 	}
 
-	// Update the HTML asset references
-	modifiedContent, err := UpdateHTMLAssetRefs(content, callback)
-	if err != nil {
-		t.Fatalf("failed to update HTML asset references: %v", err)
+	// Define the callback function to add _x before the extension
+	callback := func(ref string) string {
+		// Split the reference by the dot (.) to separate the filename and extension
+		parts := strings.Split(ref, ".")
+		if len(parts) > 1 {
+			// Add _x before the extension
+			parts[0] += "_x"
+		}
+		// Reconstruct the reference
+		return strings.Join(parts, ".")
 	}
 
-	// Compare the modified content with the expected modified content
-	if modifiedContent != expectedModified {
-		fmt.Printf("# modified:\n%v\n# expected:\n%v\n", modifiedContent, expectedModified)
-		t.Errorf("modified content does not match the expected result")
+	// Update the asset references in the original HTML
+	modifiedHTML := htmlassetref.UpdateAssetRefs(string(originalHTML), callback)
+
+	// Compare the modified HTML with the expected HTML
+	if modifiedHTML != string(expectedHTML) {
+		t.Errorf("modified HTML does not match the expected HTML")
+
+		// Print the expected and modified HTML to the console
+		fmt.Println("--- Expected HTML ---")
+		fmt.Println(string(expectedHTML))
+		fmt.Println("--- Modified HTML ---")
+		fmt.Println(modifiedHTML)
 	}
 }
