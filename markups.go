@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io/fs"
 	"path/filepath"
+
+	"github.com/ryanburnette/go-hash-assets/htmlassetref"
 )
 
 type Markup struct {
@@ -53,13 +56,37 @@ func (mp *MarkupProc) updateRefs() error {
 	return nil
 }
 
-func (mu *Markup) updateRefs(opts Opts) error {
+func (mu *Markup) updateRefs(opts Opts, mp *MarkupProc, ap *AssetProc) error {
 	dryRunMessage := ""
 	if opts.dryRun {
 		dryRunMessage = "Dry run: "
 	}
 
 	fmt.Printf("%vUpdate markup: %v\n", dryRunMessage, mu.filePath)
+
+	// Open the file from the filesystem
+	file, err := mp.fsys.Open(mu.filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	//var builder strings.Builder
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		_ = htmlassetref.UpdateAssetRefs(line, func(ref string) string {
+			// absPath is absolute to the file system, thats how we find the asset
+			absPath := filepath.Join(mu.dirPath, ref)
+			asset := ap.findAsset(absPath)
+
+			fmt.Printf(".. %v ** %v ** %v %#v \n", mu.filePath, ref, absPath, asset)
+			return ref
+		})
+	}
 
 	return nil
 }

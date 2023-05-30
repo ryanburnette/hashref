@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -56,39 +57,41 @@ func main() {
 
 	ap, err := NewAssetProc(opts, fsys)
 	if err != nil {
-		fmt.Printf("Error: %#v", err)
+		log.Fatalf("Error: %s", err)
 		os.Exit(1)
 	}
 
 	err = ap.findAssets()
 	if err != nil {
-		fmt.Printf("Error: %#v", err)
+		log.Fatalf("Error: %s", err)
 		os.Exit(1)
 	}
 
 	err = ap.renameAssets()
 	if err != nil {
-		fmt.Printf("Error: %#v", err)
+		log.Fatalf("Error: %s", err)
 		os.Exit(1)
 	}
 
 	mp, err := NewMarkupProc(opts, fsys)
 	if err != nil {
-		fmt.Printf("Error: %#v", err)
+		log.Fatalf("Error: %s", err)
 		os.Exit(1)
 	}
 
 	err = mp.findMarkups()
 	if err != nil {
-		fmt.Printf("Error: %#v", err)
+		log.Fatalf("Error: %s", err)
 		os.Exit(1)
 	}
 
-	err = mp.markups[0].updateRefs(opts)
+	err = mp.markups[0].updateRefs(opts, mp, ap)
 	if err != nil {
-		fmt.Printf("Error: %#v", err)
+		log.Fatalf("Error: %s", err)
 		os.Exit(1)
 	}
+
+	fmt.Printf("Complete.\n")
 
 	// fmt.Printf("%#v\n", mp)
 }

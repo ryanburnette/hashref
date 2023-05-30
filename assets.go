@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/fs"
+	"strings"
 )
 
 // Asset ...
@@ -72,5 +73,14 @@ func (ap *AssetProc) renameAssets() error {
 		fmt.Printf("%vRename asset: %v -> %v\n", dryRun, a.filePath, a.newFilePath)
 	}
 
+	return nil
+}
+
+func (ap *AssetProc) findAsset(filePath string) *Asset {
+	for _, a := range ap.assets {
+		if strings.EqualFold(a.filePath, filePath) {
+			return &a
+		}
+	}
 	return nil
 }
