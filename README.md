@@ -1,6 +1,6 @@
 # [hashref](https://github.com/ryanburnette/go-hashref)
 
-![hashrefs](https://github.com/ryanburnette/go-hashref/assets/2252601/ac4ea516-5d25-4c7f-ae02-56a6a4084828)
+![hashrefs](https://github.com/ryanburnette/go-hashref/assets/2252601/fb9ae441-0461-4989-8fee-9ddbb31ee0fb)
 
 hashref is a command-line tool designed to simplify cache busting for generated `.html`, `.css`, and `.js` files. It simplifies the process of cache busting by adding a short hash to the filenames of generated assets such as .css and .js files. By incorporating the hash in the filenames, hashref enables cache busting when the content of the assets changes.
 
