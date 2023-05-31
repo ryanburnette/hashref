@@ -9,6 +9,32 @@ import (
 	"github.com/ryanburnette/go-hash-assets/htmlassetref"
 )
 
+func TestRefString(t *testing.T) {
+	// Read the content from _content.html
+	content, err := ioutil.ReadFile("_content.html")
+	if err != nil {
+		t.Fatalf("failed to read _content.html: %v", err)
+	}
+
+	i := 0
+	_ = htmlassetref.UpdateAssetRefs(string(content), func(ref string) string {
+		if i == 0 {
+			if !strings.EqualFold(ref, "styles.css") {
+				t.Logf("First iteration reference: %s", ref)
+			}
+		}
+
+		i = i + 1
+
+		// Check if the reference contains any quotes
+		if strings.ContainsAny(ref, `"'`) {
+			t.Errorf("Reference contains quotes: %s", ref)
+		}
+
+		return ref
+	})
+}
+
 func TestUpdateAssetRefs(t *testing.T) {
 	// Read the original HTML from _content.html
 	originalHTML, err := ioutil.ReadFile("_content.html")
