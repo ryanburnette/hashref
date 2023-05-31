@@ -18,6 +18,7 @@ func TestRefString(t *testing.T) {
 
 	i := 0
 	_ = htmlassetref.UpdateAssetRefs(string(content), func(ref string) string {
+		// Check that we are getting the correct ref by checking the first ref string
 		if i == 0 {
 			if !strings.EqualFold(ref, "styles.css") {
 				t.Logf("First iteration reference: %s", ref)
@@ -26,7 +27,7 @@ func TestRefString(t *testing.T) {
 
 		i = i + 1
 
-		// Check if the reference contains any quotes
+		// Check if any of the reference strings contain any quotes
 		if strings.ContainsAny(ref, `"'`) {
 			t.Errorf("Reference contains quotes: %s", ref)
 		}
