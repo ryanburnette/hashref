@@ -1,6 +1,5 @@
 # Binaries
-hashref
-*.exe
+./hashref
 
 # Build artifacts
 dist/
