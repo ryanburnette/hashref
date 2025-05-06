@@ -142,9 +142,11 @@ func (p *Processor) processHTMLFile(path string) error {
 		}
 
 		// Plan rename
-		p.changesMu.Lock()
-		p.changes = append(p.changes, fmt.Sprintf("Would rename %s to %s", absPath, newPath))
-		p.changesMu.Unlock()
+		if p.cfg.DryRun {
+			p.changesMu.Lock()
+			p.changes = append(p.changes, fmt.Sprintf("Would rename %s to %s", absPath, newPath))
+			p.changesMu.Unlock()
+		}
 		p.assets[absPath] = newPath
 		newAsset := util.RelativizePath(newPath, path, p.cfg.Dir)
 		updates[asset] = newAsset
@@ -157,12 +159,11 @@ func (p *Processor) processHTMLFile(path string) error {
 	}
 
 	// Log HTML update
-	p.changesMu.Lock()
-	p.changes = append(p.changes, fmt.Sprintf("Would update %s with new asset paths", path))
-	p.changesMu.Unlock()
-
-	// Update HTML file
-	if !p.cfg.DryRun {
+	if p.cfg.DryRun {
+		p.changesMu.Lock()
+		p.changes = append(p.changes, fmt.Sprintf("Would update %s with new asset paths", path))
+		p.changesMu.Unlock()
+	} else {
 		log.Printf("Updating HTML file: %s", path)
 		f, err := os.Open(path)
 		if err != nil {
