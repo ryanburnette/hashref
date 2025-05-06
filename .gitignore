@@ -1,0 +1,10 @@
+# Binaries
+hashref
+*.exe
+
+# Build artifacts
+dist/
+*.tmp
+
+# Go
+go.sum
